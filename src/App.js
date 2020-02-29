@@ -3,11 +3,12 @@ import { ApolloProvider } from 'react-apollo';
 import { Query } from 'react-apollo';
 
 import client from './client';
-import { ME } from './grahpql';
 import { SEARCH_REPOSITORIES } from './grahpql';
 
+const PER_PAGE = 5;
+
 const DEFAULT_STATE = {
-  first: 5,
+  first: PER_PAGE,
   after: null,
   last: null,
   before: null,
@@ -21,6 +22,7 @@ class App extends Component {
 
     this.handleChange = this.handleChange.bind(this);
   }
+
   handleChange(event) {
     this.setState({
       ...DEFAULT_STATE,
@@ -28,9 +30,18 @@ class App extends Component {
     });
   }
 
+  goNext(search) {
+    this.setState({
+      first: PER_PAGE,
+      after: search.pageInfo.endCursor,
+      last: null,
+      before: null,
+    });
+  }
+
   render() {
     const { query, first, last, before, after } = this.state;
-    console.log(query);
+
     return (
       <ApolloProvider client={client}>
         <form>
@@ -44,6 +55,7 @@ class App extends Component {
             if (loading) return 'loading...';
             if (error) return `Error! ${error.message}`;
 
+            // タイトルの表示制御
             const search = data.search;
             const repositoryCount = search.repositoryCount;
             const repositoryUnit =
@@ -58,11 +70,21 @@ class App extends Component {
                     const node = edge.node;
                     return (
                       <li key={index}>
-                        <a href={node.url}>{node.name}</a>
+                        <a
+                          href={node.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {node.name}
+                        </a>
                       </li>
                     );
                   })}
                 </ul>
+                {console.log(data)}
+                {search.pageInfo.hasNextPage === true ? (
+                  <button onClick={this.goNext.bind(this, search)}>next</button>
+                ) : null}
               </React.Fragment>
             );
           }}
