@@ -6,7 +6,7 @@ import client from './client';
 import { ME } from './grahpql';
 import { SEARCH_REPOSITORIES } from './grahpql';
 
-const VARIABLES = {
+const DEFAULT_STATE = {
   first: 5,
   after: null,
   last: null,
@@ -17,12 +17,25 @@ const VARIABLES = {
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = VARIABLES;
+    this.state = DEFAULT_STATE;
+
+    this.handleChange = this.handleChange.bind(this);
   }
+  handleChange(event) {
+    this.setState({
+      ...DEFAULT_STATE,
+      query: event.target.value,
+    });
+  }
+
   render() {
     const { query, first, last, before, after } = this.state;
+    console.log(query);
     return (
       <ApolloProvider client={client}>
+        <form>
+          <input value={query} onChange={this.handleChange} />
+        </form>
         <Query
           query={SEARCH_REPOSITORIES}
           variables={{ query, first, last, before, after }}
