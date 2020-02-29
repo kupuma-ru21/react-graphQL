@@ -5,8 +5,12 @@ import { Query } from 'react-apollo';
 import client from './client';
 import { SEARCH_REPOSITORIES } from './grahpql';
 
-const PER_PAGE = 5;
+const StarButton = props => {
+  const totalCount = props.node.stargazers.totalCount;
+  return <button>{totalCount === 1 ? '1 star' : `${totalCount} stars`}</button>;
+};
 
+const PER_PAGE = 5;
 const DEFAULT_STATE = {
   first: PER_PAGE,
   after: null,
@@ -86,11 +90,12 @@ class App extends Component {
                         >
                           {node.name}
                         </a>
+                        &nbsp;
+                        <StarButton node={node} />
                       </li>
                     );
                   })}
                 </ul>
-                {console.log(data)}
                 {search.pageInfo.hasPreviousPage === true ? (
                   <button onClick={this.goPrevious.bind(this, search)}>
                     previous
